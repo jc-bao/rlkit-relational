@@ -224,13 +224,16 @@ if __name__ == "__main__":
     mlp_hidden_sizes=[64, 64, 64]
     stackonly = False
 
-    mode = "ec2"
+    mode = "here_no_doodad"
 
     instance_type = "c5.18xlarge"
-    ec2_settings = get_infra_settings(mode, instance_type)
-    num_gpus = ec2_settings['num_gpus']
-    num_parallel_processes = ec2_settings['num_parallel_processes']
-    gpu_mode = ec2_settings['gpu_mode']
+    # ec2_settings = get_infra_settings(mode, instance_type)
+    # num_gpus = ec2_settings['num_gpus']
+    # num_parallel_processes = ec2_settings['num_parallel_processes']
+    # gpu_mode = ec2_settings['gpu_mode']
+    num_gpus = 0
+    num_parallel_processes = 1
+    gpu_mode = False
 
     recurrent_graph=False
 

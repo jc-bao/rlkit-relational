@@ -3,6 +3,5 @@ data/
 !.gitignore
 videos/
 relationalrl_venv/
-rlkit/launchers/config.py
 examples/relationalrl/pkls/
 *.pyc

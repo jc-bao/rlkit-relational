@@ -1,4 +1,7 @@
 # rlkit-relational
+
+!! remember to set python path!
+
 Framework for relational reinforcement learning implemented in PyTorch. 
 
 We include additional features, beyond RLKit, aimed at supporting high step complexity tasks and relational RL:

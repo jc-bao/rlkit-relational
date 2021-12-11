@@ -24,7 +24,7 @@ from rlkit.launchers.config import get_infra_settings
 
 def experiment(variant):
     try:
-        import fetch_block_construction
+        import panda_gym
     except ImportError as e:
         print(e)
 
@@ -61,6 +61,7 @@ def experiment(variant):
         recurrent_graph=recurrent_graph
     )
 
+    # define network
     v_gp = GraphPropagation(**value_graphprop_kwargs)
 
     q1_gp = GraphPropagation(**qvalue_graphprop_kwargs)
@@ -145,6 +146,7 @@ def experiment(variant):
         observation_key=observation_key,
         desired_goal_key=desired_goal_key,
         achieved_goal_key=achieved_goal_key,
+        max_num_blocks=num_blocks,
         **variant['replay_buffer_kwargs']
     )
 
@@ -172,6 +174,7 @@ def experiment(variant):
         composite_normalizer=shared_normalizer
     )
 
+    # setup algorithm
     algorithm = HerTwinSAC(
         her_kwargs=dict(
             observation_key='observation',
@@ -194,43 +197,33 @@ def experiment(variant):
 
 
 if __name__ == "__main__":
-    docker_img = "latest"
-
-    if "rotctrl" in docker_img:
-        action_dim = 8
-        object_dim = 16
-        goal_dim = 7
-    else:
-        action_dim = 4
-        object_dim = 15
-        goal_dim = 3
-
-    shared_dim = 10
+    # environments 
+    # observation parameters
+    shared_dim = 7
+    object_dim = 15
+    goal_dim = 3
+    # action parameters
+    action_dim = 4
+    # GNN parameters
     num_relational_blocks = 3
     num_query_heads = 1
-
     embedding_dim = 64
     layer_norm = True
+
+    # environment block number
     num_blocks = 1
 
+    # trainning parameters
     num_epochs_per_eval = 10
 
-    max_path_len = 50
-    max_episode_steps = 50
-    # max_path_len = 50*num_blocks
-    #
-    # max_episode_steps = 50*num_blocks
+    max_path_len = 50*num_blocks
+    max_episode_steps = 50*num_blocks
 
     mlp_hidden_sizes=[64, 64, 64]
     stackonly = False
 
     mode = "here_no_doodad"
 
-    instance_type = "c5.18xlarge"
-    # ec2_settings = get_infra_settings(mode, instance_type)
-    # num_gpus = ec2_settings['num_gpus']
-    # num_parallel_processes = ec2_settings['num_parallel_processes']
-    # gpu_mode = ec2_settings['gpu_mode']
     num_gpus = 0
     num_parallel_processes = 1
     gpu_mode = False
@@ -268,10 +261,9 @@ if __name__ == "__main__":
             num_heads=num_query_heads
         ),
         render=False,
-        env_id=F"FetchBlockConstruction_{num_blocks}Blocks_IncrementalReward_DictstateObs_42Rendersize_{stackonly}Stackonly_SingletowerCase-v1", # TODO: make sure FalseStackonly so it goes in the air
-        doodad_docker_image=F"richardrl/fbc:{docker_img}",
-        gpu_doodad_docker_image=F"richardrl/fbc:{docker_img}",
-        save_video=False,
+        # env_id=F"FetchBlockConstruction_{num_blocks}Blocks_IncrementalReward_DictstateObs_42Rendersize_{stackonly}Stackonly_SingletowerCase-v1",
+        env_id=F"PandaTower-v{num_blocks}",
+        save_video=True,
         save_video_period=50,
         num_relational_blocks=num_relational_blocks,
         set_max_episode_steps=max_episode_steps,
@@ -284,23 +276,13 @@ if __name__ == "__main__":
         her_kwargs=dict(
             exploration_masking=True
         ),
-        recurrent_graph=recurrent_graph,
-        device='cpu'
+        recurrent_graph=recurrent_graph
     )
 
-    test_prefix = "test" if mode == "here_no_doodad" else f"pickandplace1_seed1_recurrent{recurrent_graph}"
-    print(f"\nprefix: {test_prefix}")
     run_experiment(
         experiment,
-        exp_prefix=F"{test_prefix}_stack{num_blocks}_numrelblocks{num_relational_blocks}_nqh{num_query_heads}_dockimg{docker_img}_{stackonly}stackonly_recurrent{recurrent_graph}",  # Make sure no spaces..
-        region="us-west-2",
+        exp_prefix=F"stack{num_blocks}",
         mode=mode,
         variant=variant,
         gpu_mode=gpu_mode,
-        spot_price=10,
-        snapshot_mode='gap_and_last',
-        snapshot_gap=100,
-        num_exps_per_instance=1,
-        instance_type=instance_type,
-        python_cmd=F"mpirun --allow-run-as-root -np {num_parallel_processes} python"
     )

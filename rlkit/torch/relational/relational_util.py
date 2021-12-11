@@ -6,7 +6,7 @@ import numpy as np
 def fetch_preprocessing(obs,
                         actions=None,
                         normalizer=None,
-                        robot_dim=10,
+                        robot_dim=7, # CHANGE 10->7
                         object_dim=15,
                         goal_dim=3,
                         zero_state_preprocessing_fnx=False,

@@ -165,7 +165,7 @@ class RLAlgorithm(metaclass=abc.ABCMeta):
         gt.set_def_unique(False)
         if self.collection_mode == 'online':
             self.train_online(start_epoch=start_epoch)
-        elif self.collection_mode == 'batch':
+        elif self.collection_mode == 'batch': # use this way
             self.train_batch(start_epoch=start_epoch)
         else:
             raise TypeError("Invalid collection_mode: {}".format(
@@ -206,7 +206,7 @@ class RLAlgorithm(metaclass=abc.ABCMeta):
             set_to_train_mode(self.training_env)
             observation = self._start_new_rollout()
             # This implementation is rather naive. If you want to (e.g.)
-            # parallelize data collection, this would be the place to do it.
+            # parallelize data collection, this would be the place to do it.50)
             for _ in range(self.num_env_steps_per_epoch):
                 observation = self._take_step_in_env(observation)
             gt.stamp('sample')

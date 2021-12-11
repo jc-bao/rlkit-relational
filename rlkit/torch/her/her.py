@@ -97,7 +97,7 @@ class HER(TorchRLAlgorithm):
     def _handle_rollout_ending(self):
         self._n_rollouts_total += 1
         if len(self._current_path_builder) > 0:
-            path = self._current_path_builder.get_all_stacked()
+            path = self._current_path_builder.get_all_stacked() # store path
             self.replay_buffer.add_path(path, curr_num_blocks=self.training_env.unwrapped.num_blocks)
             self._exploration_paths.append(path)
             self._current_path_builder = PathBuilder()
